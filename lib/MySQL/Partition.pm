@@ -7,6 +7,7 @@ our $VERSION = "0.01";
 
 use Class::Accessor::Lite::Lazy (
     new     => 1,
+    rw      => [qw/dry_run/],
     ro      => [qw/type dbh table definition catch_all_partition_name/],
     ro_lazy => {
         dbname => sub {
@@ -77,6 +78,12 @@ sub is_partitioned {
 }
 
 sub create_partitions {
+    my $self = shift;
+
+    my $sql = $self->_build_create_partitions(@_);
+    $self->_execute($sql);
+}
+sub _build_create_partitions {
     my ($self, @args) = @_;
 
     if ($self->type eq 'RANGE' && $self->catch_all_partition_name) {
@@ -87,12 +94,27 @@ sub create_partitions {
 }
 
 sub add_partitions {
+    my $self = shift;
+
+    my $sql = $self->_build_add_partition(@_);
+    $self->_execute($sql);
+}
+sub _build_add_partition {
     my ($self, @args) = @_;
 
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)', $self->table, $self->_build_partition_parts(@args);
 }
 
+
 sub reorganize_catch_all_partition {
+    my $self = shift;
+    die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
+
+    my $sql = $self->_build_reorganize_catch_all_partition(@_);
+    $self->_execute($sql);
+}
+
+sub _build_reorganize_catch_all_partition {
     my ($self, @args) = @_;
 
     sprintf 'ALTER TABLE %s REORGANIZE PARTITION %s INTO (
@@ -124,9 +146,28 @@ sub _build_partition_part {
 }
 
 sub drop_partition {
+    my $self = shift;
+    my $sql = $self->_build_drop_partition(@_);
+    $self->_execute($sql);
+}
+sub _build_drop_partition {
     my ($self, $partition_name) = @_;
 
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
+}
+
+sub _execute {
+    my ($self, $sql) = @_;
+
+    say 'following SQL statement to be executed.';
+    say $sql;
+    if (!$self->dry_run) {
+        $self->dbh->do($sql);
+        say 'done.';
+    }
+    else {
+        say 'dry-run.';
+    }
 }
 
 1;
