@@ -80,10 +80,10 @@ sub is_partitioned {
 sub create_partitions {
     my $self = shift;
 
-    my $sql = $self->_build_create_partitions(@_);
+    my $sql = $self->build_create_partitions_sql(@_);
     $self->_execute($sql);
 }
-sub _build_create_partitions {
+sub build_create_partitions_sql {
     my ($self, @args) = @_;
 
     if ($self->type eq 'RANGE' && $self->catch_all_partition_name) {
@@ -96,10 +96,10 @@ sub _build_create_partitions {
 sub add_partitions {
     my $self = shift;
 
-    my $sql = $self->_build_add_partition(@_);
+    my $sql = $self->build_add_partitions_sql(@_);
     $self->_execute($sql);
 }
-sub _build_add_partition {
+sub build_add_partitions_sql {
     my ($self, @args) = @_;
 
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)', $self->table, $self->_build_partition_parts(@args);
@@ -110,11 +110,11 @@ sub reorganize_catch_all_partition {
     my $self = shift;
     die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
 
-    my $sql = $self->_build_reorganize_catch_all_partition(@_);
+    my $sql = $self->build_reorganize_catch_all_partition_sql(@_);
     $self->_execute($sql);
 }
 
-sub _build_reorganize_catch_all_partition {
+sub build_reorganize_catch_all_partition_sql {
     my ($self, @args) = @_;
 
     sprintf 'ALTER TABLE %s REORGANIZE PARTITION %s INTO (
@@ -147,10 +147,10 @@ sub _build_partition_part {
 
 sub drop_partition {
     my $self = shift;
-    my $sql = $self->_build_drop_partition(@_);
+    my $sql = $self->build_drop_partition_sql(@_);
     $self->_execute($sql);
 }
-sub _build_drop_partition {
+sub build_drop_partition_sql {
     my ($self, $partition_name) = @_;
 
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
