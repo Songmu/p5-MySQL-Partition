@@ -110,4 +110,34 @@ subtest 'range columns' => sub {
     };
 };
 
+subtest 'range and catch_all' => sub {
+    my $range_partition = MySQL::Partition->new(
+        dbh                      => $dbh,
+        type                     => 'range',
+        table                    => 'test3',
+        definition               => 'TO_DAYS(created_at)',
+        catch_all_partition_name => 'pmax',
+    );
+    $range_partition->create_partitions('p20100101' => q[TO_DAYS('2010-01-01')]);
+    pass 'create_partitions ok';
+    ok $range_partition->is_partitioned;
+    ok $range_partition->has_partition('p20100101');
+    ok $range_partition->has_partition('pmax');
+    my @partitions = $range_partition->retrieve_partitions;
+    is_deeply \@partitions, ['p20100101', 'pmax'];
+
+    eval {
+        $range_partition->add_partitions('p20110101' => q[TO_DAYS('2011-01-01')]);
+    };
+    ok $@;
+
+    subtest 'reorganize_catch_all_partition' => sub {
+        $range_partition->reorganize_catch_all_partition('p20110101' => q[TO_DAYS('2011-01-01')]);
+        pass 'reorganize_catch_all_partition ok';
+        ok $range_partition->has_partition('p20110101');
+        my @partitions = $range_partition->retrieve_partitions;
+        is_deeply \@partitions, ['p20100101', 'p20110101', 'pmax'];
+    };
+};
+
 done_testing;
