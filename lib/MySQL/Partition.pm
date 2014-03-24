@@ -94,12 +94,6 @@ sub is_partitioned {
     $sth->rows > 0;
 }
 
-sub create_partitions {
-    my $self = shift;
-
-    my $sql = $self->build_create_partitions_sql(@_);
-    $self->_execute($sql);
-}
 sub build_create_partitions_sql {
     my ($self, @args) = @_;
 
@@ -110,12 +104,6 @@ sub build_create_partitions_sql {
         $self->table, $self->type, $self->definition, $self->_build_partition_parts(@args);
 }
 
-sub add_partitions {
-    my $self = shift;
-
-    my $sql = $self->build_add_partitions_sql(@_);
-    $self->_execute($sql);
-}
 sub build_add_partitions_sql {
     my ($self, @args) = @_;
 
@@ -136,11 +124,6 @@ sub _build_partition_part {
     die 'this is abstruct method';
 }
 
-sub drop_partition {
-    my $self = shift;
-    my $sql = $self->build_drop_partition_sql(@_);
-    $self->_execute($sql);
-}
 sub build_drop_partition_sql {
     my ($self, $partition_name) = @_;
 
@@ -174,6 +157,12 @@ for my $method (qw/create_partitions add_partitions drop_partition/) {
             statement       => $sql,
             mysql_partition => $self,
         );
+    };
+
+    *{__PACKAGE__ . '::' . $method} = sub {
+        use strict 'refs';
+        my ($self, @args) = @_;
+        $self->$prepare_method(@args)->execute;
     };
 }
 

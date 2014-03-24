@@ -9,25 +9,12 @@ use Class::Accessor::Lite (
 
 use MySQL::Partition::Handle;
 
-sub add_catch_all_partition {
-    my $self = shift;
-
-    my $sql = $self->build_add_catch_all_partition_sql;
-    $self->_execute($sql);
-}
 sub build_add_catch_all_partition_sql {
     my $self = shift;
     die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
 
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)',
         $self->table, $self->_build_partition_part($self->catch_all_partition_name, 'MAXVALUE');
-}
-
-sub reorganize_catch_all_partition {
-    my $self = shift;
-
-    my $sql = $self->build_reorganize_catch_all_partition_sql(@_);
-    $self->_execute($sql);
 }
 
 sub build_reorganize_catch_all_partition_sql {
@@ -61,6 +48,12 @@ for my $method (qw/add_catch_all_partition reorganize_catch_all_partition/) {
             statement       => $sql,
             mysql_partition => $self,
         );
+    };
+
+    *{__PACKAGE__ . '::' . $method} = sub {
+        use strict 'refs';
+        my ($self, @args) = @_;
+        $self->$prepare_method(@args)->execute;
     };
 }
 
