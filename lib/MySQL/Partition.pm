@@ -105,6 +105,18 @@ sub build_add_partitions_sql {
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)', $self->table, $self->_build_partition_parts(@args);
 }
 
+sub add_catch_all_partition {
+    my $self = shift;
+
+    my $sql = $self->build_add_catch_all_partition_sql;
+    $self->_execute($sql);
+}
+sub build_add_catch_all_partition_sql {
+    my $self = shift;
+
+    sprintf 'ALTER TABLE %s ADD PARTITION (%s)',
+        $self->table, $self->_build_partition_part($self->catch_all_partition_name, 'MAXVALUE');
+}
 
 sub reorganize_catch_all_partition {
     my $self = shift;
