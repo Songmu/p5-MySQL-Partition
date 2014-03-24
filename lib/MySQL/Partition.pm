@@ -130,28 +130,33 @@ sub _build_drop_partition_sql {
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
 }
 
-for my $method (qw/create_partitions add_partitions drop_partition/) {
-    my $prepare_method = "prepare_$method";
-    my $sql_builder_method   = "_build_${method}_sql";
+sub _grow_methods {
+    my ($class, @methods) = @_;
 
-    no strict 'refs';
-    *{__PACKAGE__ . '::' . $prepare_method} = sub {
-        use strict 'refs';
-        my ($self, @args) = @_;
-        my $sql = $self->$sql_builder_method(@args);
+    for my $method (@methods) {
+        my $prepare_method = "prepare_$method";
+        my $sql_builder_method   = "_build_${method}_sql";
 
-        return MySQL::Partition::Handle->new(
-            statement       => $sql,
-            mysql_partition => $self,
-        );
-    };
+        no strict 'refs';
+        *{$class . '::' . $prepare_method} = sub {
+            use strict 'refs';
+            my ($self, @args) = @_;
+            my $sql = $self->$sql_builder_method(@args);
 
-    *{__PACKAGE__ . '::' . $method} = sub {
-        use strict 'refs';
-        my ($self, @args) = @_;
-        $self->$prepare_method(@args)->execute;
-    };
+            return MySQL::Partition::Handle->new(
+                statement       => $sql,
+                mysql_partition => $self,
+            );
+        };
+        *{$class . '::' . $method} = sub {
+            use strict 'refs';
+            my ($self, @args) = @_;
+            $self->$prepare_method(@args)->execute;
+        };
+    }
 }
+__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partition/);
+
 
 1;
 __END__

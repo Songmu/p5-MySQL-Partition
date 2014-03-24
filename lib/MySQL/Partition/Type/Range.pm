@@ -7,8 +7,6 @@ use Class::Accessor::Lite (
     ro => [qw/catch_all_partition_name/],
 );
 
-use MySQL::Partition::Handle;
-
 sub _build_add_catch_all_partition_sql {
     my $self = shift;
     die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
@@ -33,28 +31,6 @@ sub _build_partition_part {
     }
     sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
 }
-
-for my $method (qw/add_catch_all_partition reorganize_catch_all_partition/) {
-    my $prepare_method = "prepare_$method";
-    my $sql_builder_method   = "_build_${method}_sql";
-
-    no strict 'refs';
-    *{__PACKAGE__ . '::' . $prepare_method} = sub {
-        use strict 'refs';
-        my ($self, @args) = @_;
-        my $sql = $self->$sql_builder_method(@args);
-
-        return MySQL::Partition::Handle->new(
-            statement       => $sql,
-            mysql_partition => $self,
-        );
-    };
-
-    *{__PACKAGE__ . '::' . $method} = sub {
-        use strict 'refs';
-        my ($self, @args) = @_;
-        $self->$prepare_method(@args)->execute;
-    };
-}
+__PACKAGE__->_grow_methods(qw/add_catch_all_partition reorganize_catch_all_partition/);
 
 1;
