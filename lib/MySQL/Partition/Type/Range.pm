@@ -7,6 +7,8 @@ use Class::Accessor::Lite (
     ro => [qw/catch_all_partition_name/],
 );
 
+__PACKAGE__->_grow_methods(qw/add_catch_all_partition reorganize_catch_all_partition/);
+
 sub _build_add_catch_all_partition_sql {
     my $self = shift;
     die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
@@ -31,6 +33,5 @@ sub _build_partition_part {
     }
     sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
 }
-__PACKAGE__->_grow_methods(qw/add_catch_all_partition reorganize_catch_all_partition/);
 
 1;

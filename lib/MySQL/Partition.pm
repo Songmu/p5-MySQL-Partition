@@ -31,13 +31,7 @@ sub new {
     bless \%args, $sub_class;
 }
 
-sub _get_dbname {
-    my $connected_db = shift;
-
-    # XXX can't parse 'host=hoge;database=fuga'
-    my ($dbname) = $connected_db =~ m!^(?:(?:database|dbname)=)?([^;]*)!i;
-    $dbname;
-}
+__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partition/);
 
 sub retrieve_partitions {
     my ($self, $table) = @_;
@@ -66,8 +60,7 @@ sub has_partition {
 
     my $sth = $self->dbh->prepare('
         SELECT
-          partition_name,
-          partition_ordinal_position
+          partition_name
         FROM
           information_schema.PARTITIONS
         WHERE
@@ -82,12 +75,13 @@ sub has_partition {
 sub is_partitioned {
     my $self = shift;
     my $sth = $self->dbh->prepare('
-        SELECT partition_name
+        SELECT
+          partition_name
         FROM
           information_schema.partitions
         WHERE
-          table_name       = ? and
-          table_schema     = ? and
+          table_name       = ? AND
+          table_schema     = ? AND
           partition_method = ?
     ');
     $sth->execute($self->table, $self->dbname, $self->type);
@@ -155,8 +149,14 @@ sub _grow_methods {
         };
     }
 }
-__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partition/);
 
+sub _get_dbname {
+    my $connected_db = shift;
+
+    # XXX can't parse 'host=hoge;database=fuga'
+    my ($dbname) = $connected_db =~ m!^(?:(?:database|dbname)=)?([^;]*)!i;
+    $dbname;
+}
 
 1;
 __END__
