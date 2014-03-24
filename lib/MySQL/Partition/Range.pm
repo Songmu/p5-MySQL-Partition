@@ -39,9 +39,12 @@ sub build_reorganize_catch_all_partition_sql {
 }
 
 sub _build_partition_part {
-    my ($self, $partition_name, $value) = shift;
+    my ($self, $partition_name, $value) = @_;
 
-    sprintf 'PARTITION %s VALUES IN (%s)', $partition_name, $value;
+    if ($value !~ /^[0-9]+$/ && $value ne 'MAXVALUE') {
+        $value = "'$value'";
+    }
+    sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
 }
 
 1;

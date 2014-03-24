@@ -6,9 +6,9 @@ use utf8;
 use parent 'MySQL::Partition';
 
 sub _build_partition_part {
-    my ($self, $partition_name, $value) = shift;
+    my ($self, $partition_name, $value) = @_;
 
-    sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
+    sprintf 'PARTITION %s VALUES IN (%s)', $partition_name, $value;
 }
 
 1;

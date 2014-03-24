@@ -20,11 +20,11 @@ use Module::Load ();
 sub new {
     my $class = shift;
     die q[can't call new method directory in sub class] if $class ne __PACKAGE__;
-    my %args = @_ == 1 ? @_ : %{$_[0]};
+    my %args = @_ == 1 ? %{$_[0]} : @_;
 
     $args{type} = uc $args{type};
     my $sub_class = __PACKAGE__ . '::' . ucfirst( lc $args{type} );
-    Class::Load::load($sub_class);
+    Module::Load::load($sub_class);
     bless \%args, $sub_class;
 }
 
