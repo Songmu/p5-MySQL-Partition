@@ -130,19 +130,6 @@ sub _build_drop_partition_sql {
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
 }
 
-sub _execute {
-    my ($self, $sql) = @_;
-
-    if ($self->verbose || $self->dry_run) {
-        printf "Following SQL statement to be executed%s.\n", ($self->dry_run ? ' (dry-run)' : '');
-        print "$sql\n";
-    }
-    if (!$self->dry_run) {
-        $self->dbh->do($sql);
-        print "done.\n" if $self->verbose;
-    }
-}
-
 for my $method (qw/create_partitions add_partitions drop_partition/) {
     my $prepare_method = "prepare_$method";
     my $sql_builder_method   = "_build_${method}_sql";

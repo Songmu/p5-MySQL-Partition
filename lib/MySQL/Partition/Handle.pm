@@ -12,7 +12,16 @@ sub execute {
     my $self = shift;
     die 'statement is already executed' if $self->_executed;
 
-    $self->mysql_partition->_execute($self->statement);
+    my $mysql_partition = $self->mysql_partition;
+    my $sql             = $self->statement;
+    if ($mysql_partition->verbose || $mysql_partition->dry_run) {
+        printf "Following SQL statement to be executed%s.\n", ($mysql_partition->dry_run ? ' (dry-run)' : '');
+        print "$sql\n";
+    }
+    if (!$mysql_partition->dry_run) {
+        $mysql_partition->dbh->do($sql);
+        print "done.\n" if $mysql_partition->verbose;
+    }
     $self->_executed(1);
 }
 
