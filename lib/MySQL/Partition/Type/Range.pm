@@ -26,12 +26,12 @@ sub _build_reorganize_catch_all_partition_sql {
 }
 
 sub _build_partition_part {
-    my ($self, $partition_name, $value) = @_;
+    my ($self, $partition_name, $partition_description) = @_;
 
-    if ($value !~ /^[0-9]+$/ && $value ne 'MAXVALUE' && $value !~ /\(/) {
-        $value = "'$value'";
+    if ($partition_description !~ /^[0-9]+$/ && $partition_description ne 'MAXVALUE' && $partition_description !~ /\(/) {
+        $partition_description = "'$partition_description'";
     }
-    sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
+    sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $partition_description;
 }
 
 1;

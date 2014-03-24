@@ -43,49 +43,27 @@ sub retrieve_partitions {
         FROM
           information_schema.PARTITIONS
         WHERE
-          table_name   = ? AND
-          table_schema = ?
+          table_name       = ? AND
+          table_schema     = ? AND
+          partition_method = ?
         ORDER BY
           partition_name
     ');
-    $sth->execute($self->table, $self->dbname);
+    $sth->execute($self->table, $self->dbname, $self->type);
     while (my $row = $sth->fetchrow_arrayref) {
         push @parts, $row->[0] if defined $row->[0];
     }
     @parts;
 }
 
-sub has_partition {
-    my ($self, $partition_name) = @_;
-
-    my $sth = $self->dbh->prepare('
-        SELECT
-          partition_name
-        FROM
-          information_schema.PARTITIONS
-        WHERE
-          table_name     = ? AND
-          table_schema   = ? AND
-          partition_name = ?
-    ');
-    $sth->execute($self->table, $self->dbname, $partition_name);
-    $sth->rows > 0;
-}
-
 sub is_partitioned {
     my $self = shift;
-    my $sth = $self->dbh->prepare('
-        SELECT
-          partition_name
-        FROM
-          information_schema.partitions
-        WHERE
-          table_name       = ? AND
-          table_schema     = ? AND
-          partition_method = ?
-    ');
-    $sth->execute($self->table, $self->dbname, $self->type);
-    $sth->rows > 0;
+    $self->retrieve_partitions ? 1 : ();
+}
+
+sub has_partition {
+    my ($self, $partition_name) = @_;
+    grep {$_ eq $partition_name} $self->retrieve_partitions;
 }
 
 sub _build_create_partitions_sql {
@@ -108,8 +86,8 @@ sub _build_partition_parts {
     my ($self, @args) = @_;
 
     my @parts;
-    while (my ($partition_name, $value) = splice @args, 0, 2) {
-        push @parts, $self->_build_partition_part($partition_name, $value);
+    while (my ($partition_name, $partition_description) = splice @args, 0, 2) {
+        push @parts, $self->_build_partition_part($partition_name, $partition_description);
     }
     join ', ', @parts;
 }

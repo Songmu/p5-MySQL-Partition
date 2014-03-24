@@ -5,9 +5,9 @@ use warnings;
 use parent 'MySQL::Partition';
 
 sub _build_partition_part {
-    my ($self, $partition_name, $value) = @_;
+    my ($self, $partition_name, $partition_description) = @_;
 
-    sprintf 'PARTITION %s VALUES IN (%s)', $partition_name, $value;
+    sprintf 'PARTITION %s VALUES IN (%s)', $partition_name, $partition_description;
 }
 
 1;
