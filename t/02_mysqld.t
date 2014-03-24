@@ -20,27 +20,15 @@ $connect_info[3] = {
 };
 my $dbh = DBI->connect(@connect_info);
 
-$dbh->do(q[CREATE TABLE `test` (
-  `id` BIGINT unsigned NOT NULL auto_increment,
-  `event_id` INTEGER NOT NULL,
-  PRIMARY KEY (`id`, `event_id`)
-)]);
-
-$dbh->do(q[CREATE TABLE `test2` (
-  `id` BIGINT unsigned NOT NULL auto_increment,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`, `created_at`)
-)]);
-
-$dbh->do(q[CREATE TABLE `test3` (
-  `id` BIGINT unsigned NOT NULL auto_increment,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`, `created_at`)
-)]);
-
 use MySQL::Partition;
 
 subtest list => sub {
+    $dbh->do(q[CREATE TABLE `test` (
+      `id` BIGINT unsigned NOT NULL auto_increment,
+      `event_id` INTEGER NOT NULL,
+      PRIMARY KEY (`id`, `event_id`)
+    )]);
+
     my $list_partition = MySQL::Partition->new(
         dbh        => $dbh,
         type       => 'list',
@@ -75,6 +63,12 @@ subtest list => sub {
 };
 
 subtest 'range columns' => sub {
+    $dbh->do(q[CREATE TABLE `test2` (
+      `id` BIGINT unsigned NOT NULL auto_increment,
+      `created_at` datetime NOT NULL,
+      PRIMARY KEY (`id`, `created_at`)
+    )]);
+
     my $range_partition = MySQL::Partition->new(
         dbh        => $dbh,
         type       => 'range columns',
@@ -111,6 +105,12 @@ subtest 'range columns' => sub {
 };
 
 subtest 'range and catch_all' => sub {
+    $dbh->do(q[CREATE TABLE `test3` (
+      `id` BIGINT unsigned NOT NULL auto_increment,
+      `created_at` datetime NOT NULL,
+      PRIMARY KEY (`id`, `created_at`)
+    )]);
+
     my $range_partition = MySQL::Partition->new(
         dbh                      => $dbh,
         type                     => 'range',
@@ -138,6 +138,31 @@ subtest 'range and catch_all' => sub {
         my @partitions = $range_partition->retrieve_partitions;
         is_deeply \@partitions, ['p20100101', 'p20110101', 'pmax'];
     };
+};
+
+
+subtest 'dry-run' => sub {
+    $dbh->do(q[CREATE TABLE `test4` (
+      `id` BIGINT unsigned NOT NULL auto_increment,
+      `event_id` INTEGER NOT NULL,
+      PRIMARY KEY (`id`, `event_id`)
+    )]);
+
+    my $list_partition = MySQL::Partition->new(
+        dbh        => $dbh,
+        type       => 'list',
+        table      => 'test4',
+        definition => 'event_id',
+        dry_run    => 1,
+    );
+
+    ok !$list_partition->is_partitioned;
+    $list_partition->create_partitions('p1' => 1);
+    pass 'create_partitions ok';
+    ok !$list_partition->is_partitioned;
+    ok !$list_partition->has_partition('p1');
+    my @partitions = $list_partition->retrieve_partitions;
+    is_deeply \@partitions, [];
 };
 
 done_testing;

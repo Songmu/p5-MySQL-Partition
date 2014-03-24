@@ -1,12 +1,12 @@
 package MySQL::Partition;
-use 5.010001;
+use 5.008001;
 use strict;
 use warnings;
 
 our $VERSION = "0.01";
 
 use Class::Accessor::Lite::Lazy (
-    rw      => [qw/dry_run/],
+    rw      => [qw/dry_run verbose/],
     ro      => [qw/type dbh table definition/],
     ro_lazy => {
         dbname => sub {
@@ -149,14 +149,13 @@ sub build_drop_partition_sql {
 sub _execute {
     my ($self, $sql) = @_;
 
-    say 'following SQL statement to be executed.';
-    say $sql;
+    if ($self->verbose || $self->dry_run) {
+        printf "Following SQL statement to be executed%s.\n", ($self->dry_run ? ' (dry-run)' : '');
+        print "$sql\n";
+    }
     if (!$self->dry_run) {
         $self->dbh->do($sql);
-        say 'done.';
-    }
-    else {
-        say 'dry-run.';
+        print "done.\n" if $self->verbose;
     }
 }
 
