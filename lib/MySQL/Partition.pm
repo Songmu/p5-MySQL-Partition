@@ -10,7 +10,7 @@ use MySQL::Partition::Handle;
 use Module::Load ();
 use Class::Accessor::Lite::Lazy (
     rw      => [qw/dry_run verbose/],
-    ro      => [qw/type dbh table definition/],
+    ro      => [qw/type dbh table expression/],
     ro_lazy => {
         dbname => sub {
             _get_dbname(shift->dbh->{Name});
@@ -95,7 +95,7 @@ sub _build_create_partitions_sql {
         push @args, $self->catch_all_partition_name, 'MAXVALUE';
     }
     sprintf 'ALTER TABLE %s PARTITION BY %s (%s) (%s)',
-        $self->table, $self->type, $self->definition, $self->_build_partition_parts(@args);
+        $self->table, $self->type, $self->expression, $self->_build_partition_parts(@args);
 }
 
 sub _build_add_partitions_sql {

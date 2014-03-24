@@ -10,7 +10,7 @@ subtest list => sub {
         dbh        => 'dummy',
         type       => 'list',
         table      => 'test',
-        definition => 'event_id',
+        expression => 'event_id',
     );
     isa_ok $list_partition, 'MySQL::Partition::Type::List';
 
@@ -27,7 +27,7 @@ subtest range => sub {
         dbh        => 'dummy',
         type       => 'range columns',
         table      => 'test2',
-        definition => 'created_at',
+        expression => 'created_at',
     );
     isa_ok $range_partition, 'MySQL::Partition::Type::Range';
 
@@ -44,7 +44,7 @@ subtest 'range and catch_all' => sub {
         dbh                      => 'dummy',
         type                     => 'range',
         table                    => 'test3',
-        definition               => 'TO_DAYS(created_at)',
+        expression               => 'TO_DAYS(created_at)',
         catch_all_partition_name => 'pmax',
     );
 

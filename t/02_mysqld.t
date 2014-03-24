@@ -33,7 +33,7 @@ subtest list => sub {
         dbh        => $dbh,
         type       => 'list',
         table      => 'test',
-        definition => 'event_id',
+        expression => 'event_id',
     );
     isa_ok $list_partition, 'MySQL::Partition::Type::List';
 
@@ -73,7 +73,7 @@ subtest 'range columns' => sub {
         dbh        => $dbh,
         type       => 'range columns',
         table      => 'test2',
-        definition => 'created_at',
+        expression => 'created_at',
     );
     isa_ok $range_partition, 'MySQL::Partition::Type::Range';
     ok !$range_partition->is_partitioned;
@@ -115,7 +115,7 @@ subtest 'range and catch_all' => sub {
         dbh                      => $dbh,
         type                     => 'range',
         table                    => 'test3',
-        definition               => 'TO_DAYS(created_at)',
+        expression               => 'TO_DAYS(created_at)',
         catch_all_partition_name => 'pmax',
     );
     $range_partition->create_partitions('p20100101' => q[TO_DAYS('2010-01-01')]);
@@ -152,7 +152,7 @@ subtest 'dry-run' => sub {
         dbh        => $dbh,
         type       => 'list',
         table      => 'test4',
-        definition => 'event_id',
+        expression => 'event_id',
         dry_run    => 1,
     );
 
