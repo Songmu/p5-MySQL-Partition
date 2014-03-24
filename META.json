@@ -43,15 +43,31 @@
       },
       "runtime" : {
          "requires" : {
+            "Class::Accessor::Lite" : "0",
+            "Class::Accessor::Lite::Lazy" : "0",
+            "Module::Load" : "0",
+            "parent" : "0",
             "perl" : "5.010001"
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0.98"
+            "Test::More" : "0.98",
+            "Test::mysqld" : "0"
          }
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/Songmu/p5-MySQL-Partition/issues"
+      },
+      "homepage" : "https://github.com/Songmu/p5-MySQL-Partition",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/Songmu/p5-MySQL-Partition.git",
+         "web" : "https://github.com/Songmu/p5-MySQL-Partition"
+      }
+   },
    "version" : "0.01"
 }
