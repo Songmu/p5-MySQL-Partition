@@ -1,12 +1,13 @@
 package MySQL::Partition::Type::Range;
 use strict;
 use warnings;
-use utf8;
 
 use parent 'MySQL::Partition';
 use Class::Accessor::Lite (
     ro => [qw/catch_all_partition_name/],
 );
+
+use MySQL::Partition::Handle;
 
 sub add_catch_all_partition {
     my $self = shift;
@@ -44,6 +45,23 @@ sub _build_partition_part {
         $value = "'$value'";
     }
     sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
+}
+
+for my $method (qw/add_catch_all_partition reorganize_catch_all_partition/) {
+    my $prepare_method = "prepare_$method";
+    my $sql_builder_method   = "build_${method}_sql";
+
+    no strict 'refs';
+    *{__PACKAGE__ . '::' . $prepare_method} = sub {
+        use strict 'refs';
+        my ($self, @args) = @_;
+        my $sql = $self->$sql_builder_method(@args);
+
+        return MySQL::Partition::Handle->new(
+            statement       => $sql,
+            mysql_partition => $self,
+        );
+    };
 }
 
 1;

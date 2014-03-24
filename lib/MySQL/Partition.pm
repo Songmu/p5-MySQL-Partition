@@ -5,6 +5,9 @@ use warnings;
 
 our $VERSION = "0.01";
 
+use MySQL::Partition::Handle;
+
+use Module::Load ();
 use Class::Accessor::Lite::Lazy (
     rw      => [qw/dry_run verbose/],
     ro      => [qw/type dbh table definition/],
@@ -14,8 +17,6 @@ use Class::Accessor::Lite::Lazy (
         },
     },
 );
-
-use Module::Load ();
 
 sub new {
     my $class = shift;
@@ -157,6 +158,23 @@ sub _execute {
         $self->dbh->do($sql);
         print "done.\n" if $self->verbose;
     }
+}
+
+for my $method (qw/create_partitions add_partitions drop_partition/) {
+    my $prepare_method = "prepare_$method";
+    my $sql_builder_method   = "build_${method}_sql";
+
+    no strict 'refs';
+    *{__PACKAGE__ . '::' . $prepare_method} = sub {
+        use strict 'refs';
+        my ($self, @args) = @_;
+        my $sql = $self->$sql_builder_method(@args);
+
+        return MySQL::Partition::Handle->new(
+            statement       => $sql,
+            mysql_partition => $self,
+        );
+    };
 }
 
 1;

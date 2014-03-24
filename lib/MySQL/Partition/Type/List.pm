@@ -1,7 +1,6 @@
 package MySQL::Partition::Type::List;
 use strict;
 use warnings;
-use utf8;
 
 use parent 'MySQL::Partition';
 
