@@ -48,12 +48,14 @@ sub retrieve_partitions {
         WHERE
           table_name   = ? AND
           table_schema = ?
+        ORDER BY
+          partition_name
     ');
     $sth->execute($self->table, $self->dbname);
     while (my $row = $sth->fetchrow_arrayref) {
         push @parts, $row->[0] if defined $row->[0];
     }
-    return \@parts;
+    @parts;
 }
 
 sub has_partition {
@@ -85,7 +87,7 @@ sub is_partitioned {
           table_schema     = ? and
           partition_method = ?
     ');
-    $sth->execute($self->table, $self->get_dbname, $self->type);
+    $sth->execute($self->table, $self->dbname, $self->type);
     $sth->rows > 0;
 }
 
