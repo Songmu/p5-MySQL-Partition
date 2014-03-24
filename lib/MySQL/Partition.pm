@@ -6,15 +6,27 @@ use warnings;
 our $VERSION = "0.01";
 
 use Class::Accessor::Lite::Lazy (
-    new     => 1,
     rw      => [qw/dry_run/],
-    ro      => [qw/type dbh table definition catch_all_partition_name/],
+    ro      => [qw/type dbh table definition/],
     ro_lazy => {
         dbname => sub {
             _get_dbname(shift->dbh->{Name});
         },
     },
 );
+
+use Module::Load ();
+
+sub new {
+    my $class = shift;
+    die q[can't call new method directory in sub class] if $class ne __PACKAGE__;
+    my %args = @_ == 1 ? @_ : %{$_[0]};
+
+    $args{type} = uc $args{type};
+    my $sub_class = __PACKAGE__ . '::' . ucfirst( lc $args{type} );
+    Class::Load::load($sub_class);
+    bless \%args, $sub_class;
+}
 
 sub _get_dbname {
     my $connected_db = shift;
@@ -105,56 +117,18 @@ sub build_add_partitions_sql {
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)', $self->table, $self->_build_partition_parts(@args);
 }
 
-sub add_catch_all_partition {
-    my $self = shift;
-
-    my $sql = $self->build_add_catch_all_partition_sql;
-    $self->_execute($sql);
-}
-sub build_add_catch_all_partition_sql {
-    my $self = shift;
-
-    sprintf 'ALTER TABLE %s ADD PARTITION (%s)',
-        $self->table, $self->_build_partition_part($self->catch_all_partition_name, 'MAXVALUE');
-}
-
-sub reorganize_catch_all_partition {
-    my $self = shift;
-    die "catch_all_partition_name isn't specified" unless $self->catch_all_partition_name;
-
-    my $sql = $self->build_reorganize_catch_all_partition_sql(@_);
-    $self->_execute($sql);
-}
-
-sub build_reorganize_catch_all_partition_sql {
-    my ($self, @args) = @_;
-
-    sprintf 'ALTER TABLE %s REORGANIZE PARTITION %s INTO (
-        %s,
-        PARTITION %s VALUES LESS THAN (MAXVALUE)
-    )', $self->table, $self->catch_all_partition_name, $self->_build_partition_parts(@args), $self->catch_all_partition_name;
-}
-
 sub _build_partition_parts {
     my ($self, @args) = @_;
 
     my @parts;
     while (my ($partition_name, $value) = splice @args, 0, 2) {
-        push @parts, $self->_build_partition_parts($partition_name, $value);
+        push @parts, $self->_build_partition_part($partition_name, $value);
     }
     join ', ', @parts;
 }
 
 sub _build_partition_part {
-    my ($self, $partition_name, $value) = shift;
-
-    my $type = uc $self->type;
-    if ( $type eq 'LIST' ) {
-        sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $value;
-    }
-    elsif ($type eq 'RANGE') {
-        sprintf 'PARTITION %s VALUES IN (%s)', $partition_name, $value;
-    }
+    die 'this is abstruct method';
 }
 
 sub drop_partition {
