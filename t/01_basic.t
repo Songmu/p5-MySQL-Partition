@@ -12,7 +12,7 @@ subtest list => sub {
         table      => 'test',
         definition => 'event_id',
     );
-    isa_ok $list_partition, 'MySQL::Partition::List';
+    isa_ok $list_partition, 'MySQL::Partition::Type::List';
 
     is $list_partition->build_create_partitions_sql('p1' => 1),
        'ALTER TABLE test PARTITION BY LIST (event_id) (PARTITION p1 VALUES IN (1))';
@@ -29,7 +29,7 @@ subtest range => sub {
         table      => 'test2',
         definition => 'created_at',
     );
-    isa_ok $range_partition, 'MySQL::Partition::Range';
+    isa_ok $range_partition, 'MySQL::Partition::Type::Range';
 
     is $range_partition->build_create_partitions_sql('p20100101' => '2010-01-01'),
        q[ALTER TABLE test2 PARTITION BY RANGE COLUMNS (created_at) (PARTITION p20100101 VALUES LESS THAN ('2010-01-01'))];

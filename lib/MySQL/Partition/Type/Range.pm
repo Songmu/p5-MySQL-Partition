@@ -1,4 +1,4 @@
-package MySQL::Partition::Range;
+package MySQL::Partition::Type::Range;
 use strict;
 use warnings;
 use utf8;

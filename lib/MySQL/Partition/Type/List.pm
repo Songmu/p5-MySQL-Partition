@@ -1,4 +1,4 @@
-package MySQL::Partition::List;
+package MySQL::Partition::Type::List;
 use strict;
 use warnings;
 use utf8;

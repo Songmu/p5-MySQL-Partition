@@ -25,7 +25,7 @@ sub new {
     $args{type} = uc $args{type};
 
     my ($type) = split /\s+/, $args{type};
-    my $sub_class = __PACKAGE__ . '::' . ucfirst( lc $type );
+    my $sub_class = __PACKAGE__ . '::Type::' . ucfirst( lc $type );
     Module::Load::load($sub_class);
     bless \%args, $sub_class;
 }

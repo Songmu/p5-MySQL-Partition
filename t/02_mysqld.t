@@ -35,7 +35,7 @@ subtest list => sub {
         table      => 'test',
         definition => 'event_id',
     );
-    isa_ok $list_partition, 'MySQL::Partition::List';
+    isa_ok $list_partition, 'MySQL::Partition::Type::List';
 
     ok !$list_partition->is_partitioned;
     $list_partition->create_partitions('p1' => 1);
@@ -75,7 +75,7 @@ subtest 'range columns' => sub {
         table      => 'test2',
         definition => 'created_at',
     );
-    isa_ok $range_partition, 'MySQL::Partition::Range';
+    isa_ok $range_partition, 'MySQL::Partition::Type::Range';
     ok !$range_partition->is_partitioned;
     $range_partition->create_partitions('p20100101' => '2010-01-01');
     pass 'create_partitions ok';
