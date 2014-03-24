@@ -97,7 +97,7 @@ sub is_partitioned {
 sub _build_create_partitions_sql {
     my ($self, @args) = @_;
 
-    if ($self->type eq 'RANGE' && $self->catch_all_partition_name) {
+    if ($self->isa('MySQL::Partition::Type::Range') && $self->catch_all_partition_name) {
         push @args, $self->catch_all_partition_name, 'MAXVALUE';
     }
     sprintf 'ALTER TABLE %s PARTITION BY %s (%s) (%s)',
