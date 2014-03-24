@@ -39,4 +39,24 @@ subtest range => sub {
     ), q[ALTER TABLE test ADD PARTITION (PARTITION p20110101 VALUES LESS THAN ('2011-01-01'), PARTITION p20120101 VALUES LESS THAN ('2012-01-01'))];
 };
 
+subtest 'range and catch_all' => sub {
+    my $range_partition = MySQL::Partition->new(
+        dbh                      => 'dummy',
+        type                     => 'range',
+        table                    => 'test',
+        definition               => 'TO_DAYS(created_at)',
+        catch_all_partition_name => 'pmax',
+    );
+
+    is $range_partition->build_create_partitions_sql('p20100101' => q[TO_DAYS('2010-01-01')]),
+       q[ALTER TABLE test PARTITION BY RANGE ].
+       q[(TO_DAYS(created_at)) (PARTITION p20100101 VALUES LESS THAN (TO_DAYS('2010-01-01')), PARTITION pmax VALUES LESS THAN (MAXVALUE))];
+
+    is $range_partition->build_add_catch_all_partition_sql, 'ALTER TABLE test ADD PARTITION (PARTITION pmax VALUES LESS THAN (MAXVALUE))';
+
+    is $range_partition->build_reorganize_catch_all_partition_sql('p20110101' => q[TO_DAYS('2011-01-01')]),
+       q[ALTER TABLE test REORGANIZE PARTITION pmax INTO (PARTITION p20110101 VALUES LESS THAN (TO_DAYS('2011-01-01')), ].
+       q[PARTITION pmax VALUES LESS THAN (MAXVALUE))];
+};
+
 done_testing;
