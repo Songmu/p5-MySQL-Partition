@@ -94,7 +94,7 @@ sub is_partitioned {
     $sth->rows > 0;
 }
 
-sub build_create_partitions_sql {
+sub _build_create_partitions_sql {
     my ($self, @args) = @_;
 
     if ($self->type eq 'RANGE' && $self->catch_all_partition_name) {
@@ -104,7 +104,7 @@ sub build_create_partitions_sql {
         $self->table, $self->type, $self->definition, $self->_build_partition_parts(@args);
 }
 
-sub build_add_partitions_sql {
+sub _build_add_partitions_sql {
     my ($self, @args) = @_;
 
     sprintf 'ALTER TABLE %s ADD PARTITION (%s)', $self->table, $self->_build_partition_parts(@args);
@@ -124,7 +124,7 @@ sub _build_partition_part {
     die 'this is abstruct method';
 }
 
-sub build_drop_partition_sql {
+sub _build_drop_partition_sql {
     my ($self, $partition_name) = @_;
 
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
@@ -145,7 +145,7 @@ sub _execute {
 
 for my $method (qw/create_partitions add_partitions drop_partition/) {
     my $prepare_method = "prepare_$method";
-    my $sql_builder_method   = "build_${method}_sql";
+    my $sql_builder_method   = "_build_${method}_sql";
 
     no strict 'refs';
     *{__PACKAGE__ . '::' . $prepare_method} = sub {
