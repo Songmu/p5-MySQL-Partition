@@ -25,14 +25,14 @@ subtest list => sub {
 subtest range => sub {
     my $range_partition = MySQL::Partition->new(
         dbh        => 'dummy',
-        type       => 'range',
+        type       => 'range columns',
         table      => 'test2',
-        definition => 'COLUMNS(created_at)',
+        definition => 'created_at',
     );
     isa_ok $range_partition, 'MySQL::Partition::Range';
 
     is $range_partition->build_create_partitions_sql('p20100101' => '2010-01-01'),
-       q[ALTER TABLE test2 PARTITION BY RANGE (COLUMNS(created_at)) (PARTITION p20100101 VALUES LESS THAN ('2010-01-01'))];
+       q[ALTER TABLE test2 PARTITION BY RANGE COLUMNS (created_at) (PARTITION p20100101 VALUES LESS THAN ('2010-01-01'))];
     is $range_partition->build_add_partitions_sql(
         'p20110101' => '2011-01-01',
         'p20120101' => '2012-01-01',

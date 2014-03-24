@@ -74,4 +74,40 @@ subtest list => sub {
     };
 };
 
+subtest 'range columns' => sub {
+    my $range_partition = MySQL::Partition->new(
+        dbh        => $dbh,
+        type       => 'range columns',
+        table      => 'test2',
+        definition => 'created_at',
+    );
+    isa_ok $range_partition, 'MySQL::Partition::Range';
+    ok !$range_partition->is_partitioned;
+    $range_partition->create_partitions('p20100101' => '2010-01-01');
+    pass 'create_partitions ok';
+    ok $range_partition->is_partitioned;
+    ok $range_partition->has_partition('p20100101');
+    my @partitions = $range_partition->retrieve_partitions;
+    is_deeply \@partitions, ['p20100101'];
+
+    subtest 'add_partitions' => sub {
+        $range_partition->add_partitions(
+            'p20110101' => '2011-01-01',
+            'p20120101' => '2012-01-01',
+        );
+        ok $range_partition->has_partition('p20110101');
+        ok $range_partition->has_partition('p20120101');
+        my @partitions = $range_partition->retrieve_partitions;
+        is_deeply \@partitions, ['p20100101', 'p20110101', 'p20120101'];
+    };
+
+    subtest 'drop_partition' => sub {
+        $range_partition->drop_partition('p20110101');
+        pass 'drop_partition ok';
+        ok !$range_partition->has_partition('p20110101');
+        my @partitions = $range_partition->retrieve_partitions;
+        is_deeply \@partitions, ['p20100101', 'p20120101'];
+    };
+};
+
 done_testing;
