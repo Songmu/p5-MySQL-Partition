@@ -60,4 +60,32 @@ subtest 'range and catch_all' => sub {
        q[PARTITION pmax VALUES LESS THAN (MAXVALUE))];
 };
 
+subtest 'range _build_partition_part' => sub {
+    my $range_partition = MySQL::Partition->new(
+        dbh                      => 'dummy',
+        type                     => 'range',
+        table                    => 'test3',
+        expression               => 'TO_DAYS(created_at)',
+        catch_all_partition_name => 'pmax',
+    );
+    is $range_partition->_build_partition_part(p111 => {
+        comment     => 'test111',
+        description => '111',
+    }), q[PARTITION p111 VALUES LESS THAN (111) COMMENT = 'test111'];
+};
+
+subtest 'list _build_partition_part' => sub {
+    my $range_partition = MySQL::Partition->new(
+        dbh                      => 'dummy',
+        type                     => 'list',
+        table                    => 'test3',
+        expression               => 'event_id',
+        catch_all_partition_name => 'pmax',
+    );
+    is $range_partition->_build_partition_part(p1122 => {
+        comment     => 'test1122',
+        description => '1122',
+    }), q[PARTITION p1122 VALUES IN (1122) COMMENT = 'test1122'];
+};
+
 done_testing;

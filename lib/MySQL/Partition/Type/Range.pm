@@ -28,10 +28,20 @@ sub _build_reorganize_catch_all_partition_sql {
 sub _build_partition_part {
     my ($self, $partition_name, $partition_description) = @_;
 
+    my $comment;
+    if (ref $partition_description && ref $partition_description eq 'HASH') {
+        $comment = $partition_description->{comment};
+        $comment =~ s/'//g if defined $comment;
+        $partition_description = $partition_description->{description};
+        die 'no partition_description is specified' unless $partition_description;
+    }
+
     if ($partition_description !~ /^[0-9]+$/ && $partition_description ne 'MAXVALUE' && $partition_description !~ /\(/) {
         $partition_description = "'$partition_description'";
     }
-    sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $partition_description;
+    my $part = sprintf 'PARTITION %s VALUES LESS THAN (%s)', $partition_name, $partition_description;
+    $part .= " COMMENT = '$comment'" if $comment;
+    $part;
 }
 
 1;
