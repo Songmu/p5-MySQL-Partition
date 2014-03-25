@@ -186,7 +186,10 @@ subtest 'use handle' => sub {
     is_deeply \@partitions, ['p1'];
 
     subtest 'add_partitions' => sub {
-        my $handle = $list_partition->prepare_add_partitions(p2 => '2, 3');
+        my $handle = $list_partition->prepare_add_partitions(p2 => {
+            description => '2, 3',
+            comment     => 'test',
+        });
         is_deeply [$list_partition->retrieve_partitions], ['p1'];
         $handle->execute;
         pass 'add_partitions ok';
