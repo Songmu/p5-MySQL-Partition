@@ -140,7 +140,6 @@ subtest 'range and catch_all' => sub {
     };
 };
 
-
 subtest 'dry-run' => sub {
     $dbh->do(q[CREATE TABLE `test4` (
       `id` BIGINT unsigned NOT NULL auto_increment,
@@ -163,6 +162,44 @@ subtest 'dry-run' => sub {
     ok !$list_partition->has_partition('p1');
     my @partitions = $list_partition->retrieve_partitions;
     is_deeply \@partitions, [];
+};
+
+subtest 'use handle' => sub {
+    $dbh->do(q[CREATE TABLE `test5` (
+      `id` BIGINT unsigned NOT NULL auto_increment,
+      `event_id` INTEGER NOT NULL,
+      PRIMARY KEY (`id`, `event_id`)
+    )]);
+
+    my $list_partition = MySQL::Partition->new(
+        dbh        => $dbh,
+        type       => 'list',
+        table      => 'test5',
+        expression => 'event_id',
+    );
+    my $handle = $list_partition->prepare_create_partitions(p1 => 1);
+    ok !$list_partition->is_partitioned;
+    $handle->execute;
+    pass 'create_partitions ok';
+    ok $list_partition->is_partitioned;
+    my @partitions = $list_partition->retrieve_partitions;
+    is_deeply \@partitions, ['p1'];
+
+    subtest 'add_partitions' => sub {
+        my $handle = $list_partition->prepare_add_partitions(p2 => '2, 3');
+        is_deeply [$list_partition->retrieve_partitions], ['p1'];
+        $handle->execute;
+        pass 'add_partitions ok';
+        is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
+    };
+
+    subtest 'drop_partition' => sub {
+        my $handle = $list_partition->prepare_drop_partition('p1');
+        is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
+        $handle->execute;
+        pass 'add_partitions ok';
+        is_deeply [$list_partition->retrieve_partitions], ['p2'];
+    };
 };
 
 done_testing;
