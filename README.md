@@ -36,7 +36,9 @@ MySQL::Partition - Utility for MySQL partitioning
 MySQL::Partition is utility module for MySQL partitions.
 
 This module creates a object for manipulating MySQL partitions.
-This is very useful that we no longer write complecated and MySQL specific SQL syntax any more.
+This is very useful that we no longer write complicated and MySQL specific SQL syntax any more.
+
+__THE SOFTWARE IS STILL ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.__
 
 # INTERFACE
 
@@ -59,7 +61,7 @@ Create a new object which is subclass of [MySQL::Partition](http://search.cpan.o
 
 - `expression => Str`
 
-    partitioning expression. eg. `event_id`, `created_at`, `TO_DAYS(created_at)`, etc.
+    partitioning expression. e.g. `event_id`, `created_at`, `TO_DAYS(created_at)`, etc.
 
 ## Methods
 

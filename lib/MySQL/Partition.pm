@@ -175,7 +175,9 @@ MySQL::Partition - Utility for MySQL partitioning
 MySQL::Partition is utility module for MySQL partitions.
 
 This module creates a object for manipulating MySQL partitions.
-This is very useful that we no longer write complecated and MySQL specific SQL syntax any more.
+This is very useful that we no longer write complicated and MySQL specific SQL syntax any more.
+
+B<THE SOFTWARE IS STILL ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.>
 
 =head1 INTERFACE
 
@@ -202,7 +204,7 @@ If C<list> is specified, C<new> method returns C<MySQL::Partition::Type::List> o
 
 =item C<< expression => Str >>
 
-partitioning expression. eg. C<event_id>, C<created_at>, C<TO_DAYS(created_at)>, etc.
+partitioning expression. e.g. C<event_id>, C<created_at>, C<TO_DAYS(created_at)>, etc.
 
 =back
 

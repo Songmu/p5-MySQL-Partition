@@ -63,10 +63,14 @@ This class has extra constructor options and methods in other than base class.
 
 =head2 Constructor Options
 
+=over
+
 =item C<catch_all_partition_name>
 
 Catch-all partition name for the statement like C<< PARTITION pmax VALUES LESS THAN MAXVALUE >>.
 C<pmax> is catch-all partition name in the above case.
+
+=back
 
 =head2 Methods
 
@@ -80,7 +84,7 @@ C<prepare_add_catch_all_partition> method is also available.
 
 The MySQL table which have catch-all partition can't be added new partition.
 In this case, we can use C<< ALTER TABLE REORGANIZE PARTITION ... >> and this method
-issuance and execte the sql statements.
+issuance and execute the SQL statements.
 
 C<prepare_reorganize_catch_all_partition> method is also available.
 
