@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Utility for MySQL partitioning",
    "author" : [
       "Songmu <y.songmu@gmail.com>"
    ],

@@ -45,3 +45,54 @@ sub _build_partition_part {
 }
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+MySQL::Partition::Type::Range - subclass of MySQL::Partition for range partition
+
+=head1 DESCRIPTION
+
+Subclass of MySQL::Partition for manipulating range partitions.
+
+=head1 INTERFACE
+
+This class has extra constructor options and methods in other than base class.
+
+=head2 Constructor Options
+
+=item C<catch_all_partition_name>
+
+Catch-all partition name for the statement like C<< PARTITION pmax VALUES LESS THAN MAXVALUE >>.
+C<pmax> is catch-all partition name in the above case.
+
+=head2 Methods
+
+=head3 C<< $range_partition->add_catch_all_partition >>
+
+Add catch all partition.
+
+C<prepare_add_catch_all_partition> method is also available.
+
+=head3 C<< $range_partition->reorganize_catch_all_partition >>
+
+The MySQL table which have catch-all partition can't be added new partition.
+In this case, we can use C<< ALTER TABLE REORGANIZE PARTITION ... >> and this method
+issuance and execte the sql statements.
+
+C<prepare_reorganize_catch_all_partition> method is also available.
+
+=head1 LICENSE
+
+Copyright (C) Songmu.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Songmu E<lt>y.songmu@gmail.comE<gt>
+
+=cut

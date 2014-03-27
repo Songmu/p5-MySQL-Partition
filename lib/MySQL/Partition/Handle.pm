@@ -26,3 +26,50 @@ sub execute {
 }
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+MySQL::Partition::Handle - handler for MySQL::Partition
+
+=head1 SYNOPSIS
+
+    use MySQL::Partition;
+    my $dbh = DBI->connect(@connect_info);
+    my $list_partition = MySQL::Partition->new(...);
+
+    # prepare_* method returns MySQL::Partition::Handle object
+    my $handle = $list_partition->prepare_add_partitions('p4' => 4);
+    print $handle->statement;
+    $handle->execute;
+
+=head1 DESCRIPTION
+
+MySQL::Partition::Handle is module of handler for MySQL::Partition.
+
+=head1 INTERFACE
+
+=head2 Methods
+
+=head3 C<< my $sql = $handle->statement >>
+
+Returns a SQL statement to be executed.
+
+=head3 C<< $handle->execute >>
+
+Execute the SQL.
+
+=head1 LICENSE
+
+Copyright (C) Songmu.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Songmu E<lt>y.songmu@gmail.comE<gt>
+
+=cut

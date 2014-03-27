@@ -20,3 +20,27 @@ sub _build_partition_part {
 }
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+MySQL::Partition::Type::List - subclass of MySQL::Partition for list partition
+
+=head1 DESCRIPTION
+
+Subclass of MySQL::Partition for manipulating list partitions.
+
+=head1 LICENSE
+
+Copyright (C) Songmu.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Songmu E<lt>y.songmu@gmail.comE<gt>
+
+=cut

@@ -143,15 +143,109 @@ __END__
 
 =head1 NAME
 
-MySQL::Partition - It's new $module
+MySQL::Partition - Utility for MySQL partitioning
 
 =head1 SYNOPSIS
 
     use MySQL::Partition;
+    my $dbh = DBI->connect(@connect_info);
+    my $list_partition = MySQL::Partition->new(
+        dbh        => $dbh,
+        type       => 'list',
+        table      => 'test',
+        expression => 'event_id',
+    );
+    $list_partition->is_partitioned;
+    $list_partition->create_partitions('p1' => 1); # ALTER TABLE test PARTITION BY LIST ...
+    $list_partition->has_partition('p1'); # true
+    
+    $list_partition->add_partitions('p2_3' => '2, 3');
+    
+    # handle interface
+    my $handle = $list_partition->prepare_add_partitions('p4' => 4);
+    print $handle->statement;
+    $handle->execute;
+    
+    $list_partition->drop_partition('p1');
+    $handle = $list_partition->prepare_drop_partition('p2_3');
+    $handle->execute;
 
 =head1 DESCRIPTION
 
-MySQL::Partition is ...
+MySQL::Partition is utility module for MySQL partitions.
+
+This module creates a object for manipulating MySQL partitions.
+This is very useful that we no longer write complecated and MySQL specific SQL syntax any more.
+
+=head1 INTERFACE
+
+=head2 Constructor
+
+=head3 C<< my $mysql_partition:MySQL::Partition = MySQL::Partition->new(%args) >>
+
+Create a new object which is subclass of L<MySQL::Partition>.
+(L<MySQL::Partition::Type::Range> or L<MySQL::Partition::Type::List>.
+
+L<%args> must contain following keys.
+
+=over
+
+=item C<< dbh => DBI::st >>
+
+=item C<< table => Str >>
+
+=item C<< type => Str >>
+
+partitioning method. C<<list(?: columns)?>> or C<<range(?: columns)?>>.
+
+If C<list> is specified, C<new> method returns C<MySQL::Partition::Type::List> object.
+
+=item C<< expression => Str >>
+
+partitioning expression. eg. C<event_id>, C<created_at>, C<TO_DAYS(created_at)>, etc.
+
+=back
+
+=head2 Methods
+
+=head3 C<< my @partition_names = $mysql_partition->retrieve_partitions >>
+
+Returns partition names in the table.
+
+=head3 C<< my $bool = $mysql_partition->is_partitioned >>
+
+Returns the table is partitioned or not.
+
+=head3 C<< my $bool = $mysql_partition->has_partitione($partition_name) >>
+
+Returns the table has a specified partition name or not.
+
+=head2 Methods for manipulating partition
+
+=head3 C<< $mysql_partition->create_partitions($partition_name => $partition_description, [$name => $description, ...]) >>
+
+=head3 C<< $mysql_partition->add_partitions($partition_name => $partition_description, [$name => $description], ...) >>
+
+=head3 C<< $mysql_partition->drop_partitions($partition_name) >>
+
+=head2 Methods for MySQL::Partition::Handle
+
+Each method for manipulating partition has C<prepare_*> method which returns L<MySQL::Partition::Handle> object.
+
+=over
+
+=item C<prepare_create_partitions>
+
+=item C<prepare_add_partitions>
+
+=item C<prepare_drop_partition>
+
+=back
+
+Actually, C<< $mysql_partition->create_partitions(...); >> is a shortcut of following.
+
+    my $handle = $mysql_partition->prepare_create_partitions(...);
+    $handle->execute;
 
 =head1 LICENSE
 
@@ -165,4 +259,3 @@ it under the same terms as Perl itself.
 Songmu E<lt>y.songmu@gmail.comE<gt>
 
 =cut
-
