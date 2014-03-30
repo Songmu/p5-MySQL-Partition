@@ -36,24 +36,27 @@ __PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partition/);
 sub retrieve_partitions {
     my ($self, $table) = @_;
 
-    my @parts;
-    my $sth = $self->dbh->prepare('
-        SELECT
-          partition_name
-        FROM
-          information_schema.PARTITIONS
-        WHERE
-          table_name       = ? AND
-          table_schema     = ? AND
-          partition_method = ?
-        ORDER BY
-          partition_name
-    ');
-    $sth->execute($self->table, $self->dbname, $self->type);
-    while (my $row = $sth->fetchrow_arrayref) {
-        push @parts, $row->[0] if defined $row->[0];
-    }
-    @parts;
+    my $parts = $self->{partitions} ||= do {
+        my @parts;
+        my $sth = $self->dbh->prepare('
+            SELECT
+              partition_name
+            FROM
+              information_schema.PARTITIONS
+            WHERE
+              table_name       = ? AND
+              table_schema     = ? AND
+              partition_method = ?
+            ORDER BY
+              partition_name
+        ');
+        $sth->execute($self->table, $self->dbname, $self->type);
+        while (my $row = $sth->fetchrow_arrayref) {
+            push @parts, $row->[0] if defined $row->[0];
+        }
+        \@parts;
+    };
+    @$parts;
 }
 
 sub is_partitioned {

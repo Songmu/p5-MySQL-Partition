@@ -21,6 +21,7 @@ sub execute {
     if (!$mysql_partition->dry_run) {
         $mysql_partition->dbh->do($sql);
         print "done.\n" if $mysql_partition->verbose;
+        delete $mysql_partition->{partitions};
     }
     $self->_executed(1);
 }
