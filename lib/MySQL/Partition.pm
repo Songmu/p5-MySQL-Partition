@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 use MySQL::Partition::Handle;
 
@@ -31,7 +31,7 @@ sub new {
     bless \%args, $sub_class;
 }
 
-__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partition/);
+__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partitions/);
 
 sub retrieve_partitions {
     my ($self, $table) = @_;
@@ -99,10 +99,10 @@ sub _build_partition_part {
     die 'this is abstruct method';
 }
 
-sub _build_drop_partition_sql {
-    my ($self, $partition_name) = @_;
+sub _build_drop_partitions_sql {
+    my ($self, @partition_names) = @_;
 
-    sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, $partition_name;
+    sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, join(', ', @partition_names);
 }
 
 sub _grow_methods {
@@ -169,8 +169,8 @@ MySQL::Partition - Utility for MySQL partitioning
     print $handle->statement;
     $handle->execute;
     
-    $list_partition->drop_partition('p1');
-    $handle = $list_partition->prepare_drop_partition('p2_3');
+    $list_partition->drop_partitions('p1');
+    $handle = $list_partition->prepare_drop_partitions('p2_3');
     $handle->execute;
 
 =head1 DESCRIPTION
@@ -231,7 +231,7 @@ Returns the table has a specified partition name or not.
 
 =head3 C<< $mysql_partition->add_partitions($partition_name => $partition_description, [$name => $description], ...) >>
 
-=head3 C<< $mysql_partition->drop_partitions($partition_name) >>
+=head3 C<< $mysql_partition->drop_partitions(@partition_names) >>
 
 =head2 Methods for MySQL::Partition::Handle
 
@@ -243,7 +243,7 @@ Each method for manipulating partition has C<prepare_*> method which returns L<M
 
 =item C<prepare_add_partitions>
 
-=item C<prepare_drop_partition>
+=item C<prepare_drop_partitions>
 
 =back
 

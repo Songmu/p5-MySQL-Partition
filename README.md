@@ -27,8 +27,8 @@ MySQL::Partition - Utility for MySQL partitioning
     $handle->execute;
     
 
-    $list_partition->drop_partition('p1');
-    $handle = $list_partition->prepare_drop_partition('p2_3');
+    $list_partition->drop_partitions('p1');
+    $handle = $list_partition->prepare_drop_partitions('p2_3');
     $handle->execute;
 
 # DESCRIPTION
@@ -83,7 +83,7 @@ Returns the table has a specified partition name or not.
 
 ### `$mysql_partition->add_partitions($partition_name => $partition_description, [$name => $description], ...)`
 
-### `$mysql_partition->drop_partitions($partition_name)`
+### `$mysql_partition->drop_partitions(@partition_names)`
 
 ## Methods for MySQL::Partition::Handle
 
@@ -91,7 +91,7 @@ Each method for manipulating partition has `prepare_*` method which returns [MyS
 
 - `prepare_create_partitions`
 - `prepare_add_partitions`
-- `prepare_drop_partition`
+- `prepare_drop_partitions`
 
 Actually, `$mysql_partition->create_partitions(...);` is a shortcut of following.
 

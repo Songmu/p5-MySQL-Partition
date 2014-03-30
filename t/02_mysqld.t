@@ -54,7 +54,7 @@ subtest list => sub {
     };
 
     subtest 'drop_partition' => sub {
-        $list_partition->drop_partition('p1');
+        $list_partition->drop_partitions('p1');
         pass 'drop_partition ok';
         ok !$list_partition->has_partition('p1');
         my @partitions = $list_partition->retrieve_partitions;
@@ -96,7 +96,7 @@ subtest 'range columns' => sub {
     };
 
     subtest 'drop_partition' => sub {
-        $range_partition->drop_partition('p20110101');
+        $range_partition->drop_partitions('p20110101');
         pass 'drop_partition ok';
         ok !$range_partition->has_partition('p20110101');
         my @partitions = $range_partition->retrieve_partitions;
@@ -197,7 +197,7 @@ subtest 'use handle' => sub {
     };
 
     subtest 'drop_partition' => sub {
-        my $handle = $list_partition->prepare_drop_partition('p1');
+        my $handle = $list_partition->prepare_drop_partitions('p1');
         is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
         $handle->execute;
         pass 'add_partitions ok';

@@ -18,7 +18,7 @@ subtest list => sub {
        'ALTER TABLE test PARTITION BY LIST (event_id) (PARTITION p1 VALUES IN (1))';
     is $list_partition->_build_add_partitions_sql('p2' => '2, 3'),
        'ALTER TABLE test ADD PARTITION (PARTITION p2 VALUES IN (2, 3))';
-    is $list_partition->_build_drop_partition_sql('p1'),
+    is $list_partition->_build_drop_partitions_sql('p1'),
        'ALTER TABLE test DROP PARTITION p1';
 };
 
