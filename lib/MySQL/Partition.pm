@@ -8,15 +8,15 @@ our $VERSION = "0.03";
 use MySQL::Partition::Handle;
 
 use Module::Load ();
-use Class::Accessor::Lite::Lazy (
+use Class::Accessor::Lite (
     rw      => [qw/dry_run verbose/],
     ro      => [qw/type dbh table expression/],
-    ro_lazy => {
-        dbname => sub {
-            _get_dbname(shift->dbh->{Name});
-        },
-    },
 );
+
+sub dbname {
+    my $self = shift;
+    exists $self->{dbname} ? $self->{dbname} : $self->{dbname} ||= _get_dbname($self->dbh->{Name});
+}
 
 sub new {
     my $class = shift;

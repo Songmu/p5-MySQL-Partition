@@ -1,5 +1,4 @@
 requires 'Class::Accessor::Lite';
-requires 'Class::Accessor::Lite::Lazy';
 requires 'Module::Load';
 requires 'parent';
 requires 'perl', '5.010001';
