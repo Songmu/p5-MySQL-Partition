@@ -201,7 +201,7 @@ L<%args> must contain following keys.
 
 =item C<< type => Str >>
 
-partitioning method. C<<list(?: columns)?>> or C<<range(?: columns)?>>.
+partitioning method. C<< list(?: columns)? >> or C<< range(?: columns)? >>.
 
 If C<list> is specified, C<new> method returns C<MySQL::Partition::Type::List> object.
 

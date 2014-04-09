@@ -55,7 +55,7 @@ Create a new object which is subclass of [MySQL::Partition](http://search.cpan.o
 - `table => Str`
 - `type => Str`
 
-    partitioning method. `<list(?: columns)?`\> or `<range(?: columns)?`\>.
+    partitioning method. `list(?: columns)?` or `range(?: columns)?`.
 
     If `list` is specified, `new` method returns `MySQL::Partition::Type::List` object.
 
