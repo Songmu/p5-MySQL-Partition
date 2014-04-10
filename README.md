@@ -49,9 +49,9 @@ __THE SOFTWARE IS STILL ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.__
 Create a new object which is subclass of [MySQL::Partition](http://search.cpan.org/perldoc?MySQL::Partition).
 ([MySQL::Partition::Type::Range](http://search.cpan.org/perldoc?MySQL::Partition::Type::Range) or [MySQL::Partition::Type::List](http://search.cpan.org/perldoc?MySQL::Partition::Type::List).
 
-[%args](http://search.cpan.org/perldoc?%args) must contain following keys.
+Following keys are required in `%args`.
 
-- `dbh => DBI::st`
+- `dbh => DBI::db`
 - `table => Str`
 - `type => Str`
 

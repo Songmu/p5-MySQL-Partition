@@ -191,11 +191,11 @@ B<THE SOFTWARE IS STILL ALPHA QUALITY. API MAY CHANGE WITHOUT NOTICE.>
 Create a new object which is subclass of L<MySQL::Partition>.
 (L<MySQL::Partition::Type::Range> or L<MySQL::Partition::Type::List>.
 
-L<%args> must contain following keys.
+Following keys are required in C<%args>.
 
 =over
 
-=item C<< dbh => DBI::st >>
+=item C<< dbh => DBI::db >>
 
 =item C<< table => Str >>
 
