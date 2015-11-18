@@ -250,7 +250,7 @@ subtest 'use handle' => sub {
         my $handle = $list_partition->prepare_drop_partitions('p1');
         is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
         $handle->execute;
-        pass 'add_partitions ok';
+        pass 'drop_partitions ok';
         is_deeply [$list_partition->retrieve_partitions], ['p2'];
     };
 };
