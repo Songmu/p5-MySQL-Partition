@@ -20,6 +20,8 @@ subtest list => sub {
        'ALTER TABLE test ADD PARTITION (PARTITION p2 VALUES IN (2, 3))';
     is $list_partition->_build_drop_partitions_sql('p1'),
        'ALTER TABLE test DROP PARTITION p1';
+    is $list_partition->_build_truncate_partitions_sql('p1'),
+       'ALTER TABLE test TRUNCATE PARTITION p1';
 };
 
 subtest range => sub {

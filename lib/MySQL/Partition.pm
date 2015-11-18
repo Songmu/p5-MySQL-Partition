@@ -31,7 +31,7 @@ sub new {
     bless \%args, $sub_class;
 }
 
-__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partitions/);
+__PACKAGE__->_grow_methods(qw/create_partitions add_partitions drop_partitions truncate_partitions/);
 
 sub retrieve_partitions {
     my ($self, $table) = @_;
@@ -105,6 +105,12 @@ sub _build_drop_partitions_sql {
     sprintf 'ALTER TABLE %s DROP PARTITION %s', $self->table, join(', ', @partition_names);
 }
 
+sub _build_truncate_partitions_sql {
+    my ($self, @partition_names) = @_;
+
+    sprintf 'ALTER TABLE %s TRUNCATE PARTITION %s', $self->table, join(', ', @partition_names);
+}
+
 sub _grow_methods {
     my ($class, @methods) = @_;
 
@@ -167,6 +173,10 @@ MySQL::Partition - Utility for MySQL partitioning
     # handle interface
     my $handle = $list_partition->prepare_add_partitions('p4' => 4);
     print $handle->statement;
+    $handle->execute;
+    
+    $list_partition->truncate_partitions('p1');
+    $handle = $list_partition->prepare_truncate_partitions('p2_3');
     $handle->execute;
     
     $list_partition->drop_partitions('p1');
@@ -233,6 +243,8 @@ Returns the table has a specified partition name or not.
 
 =head3 C<< $mysql_partition->drop_partitions(@partition_names) >>
 
+=head3 C<< $mysql_partition->truncate_partitions(@partition_names) >>
+
 =head2 Methods for MySQL::Partition::Handle
 
 Each method for manipulating partition has C<prepare_*> method which returns L<MySQL::Partition::Handle> object.
@@ -244,6 +256,8 @@ Each method for manipulating partition has C<prepare_*> method which returns L<M
 =item C<prepare_add_partitions>
 
 =item C<prepare_drop_partitions>
+
+=item C<prepare_truncate_partitions>
 
 =back
 
