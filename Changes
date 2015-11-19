@@ -1,6 +1,7 @@
 Revision history for Perl extension MySQL-Partition
 
 {{$NEXT}}
+    - support TRUNCATE PARTITION (shogo82148++)
 
 0.04 2014-04-09T13:57:24Z
     - remove Class::Accessor::Lite::Lazy from deps
