@@ -1,6 +1,8 @@
 Revision history for Perl extension MySQL-Partition
 
 {{$NEXT}}
+
+0.05 2015-11-19T08:27:10Z
     - support TRUNCATE PARTITION (shogo82148++)
 
 0.04 2014-04-09T13:57:24Z
