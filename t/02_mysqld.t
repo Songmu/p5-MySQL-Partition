@@ -53,6 +53,19 @@ subtest list => sub {
         is_deeply \@partitions, ['p1', 'p2'];
     };
 
+    subtest 'truncate_partition' => sub {
+        $dbh->do(q[INSERT INTO `test` (`event_id`) VALUES (1), (2)]);
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test` WHERE `event_id` = 1]), [1];
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test` WHERE `event_id` = 2]), [1];
+        $list_partition->truncate_partitions('p1');
+        pass 'truncate_partition ok';
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test` WHERE `event_id` = 1]), [0];
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test` WHERE `event_id` = 2]), [1];
+        ok $list_partition->has_partition('p1');
+        my @partitions = $list_partition->retrieve_partitions;
+        is_deeply \@partitions, ['p1', 'p2'];
+    };
+
     subtest 'drop_partition' => sub {
         $list_partition->drop_partitions('p1');
         pass 'drop_partition ok';
@@ -91,6 +104,34 @@ subtest 'range columns' => sub {
         );
         ok $range_partition->has_partition('p20110101');
         ok $range_partition->has_partition('p20120101');
+        my @partitions = $range_partition->retrieve_partitions;
+        is_deeply \@partitions, ['p20100101', 'p20110101', 'p20120101'];
+    };
+
+    subtest 'truncate_partition' => sub {
+        $dbh->do(q[INSERT INTO `test2` (`created_at`) VALUES
+            ("2010-01-01 00:00:00"), ("2010-12-31 23:59:59"),
+            ("2011-01-01 00:00:00"), ("2011-12-31 23:59:59")
+        ]);
+        is_deeply $dbh->selectrow_arrayref(q[
+            SELECT COUNT(*) FROM `test2`
+            WHERE `created_at` BETWEEN "2010-01-01 00:00:00" AND "2010-12-31 23:59:59"
+        ]), [2];
+        is_deeply $dbh->selectrow_arrayref(q[
+            SELECT COUNT(*) FROM `test2`
+            WHERE `created_at` BETWEEN "2011-01-01 00:00:00" AND "2011-12-31 23:59:59"
+        ]), [2];
+        $range_partition->truncate_partitions('p20110101');
+        pass 'truncate_partition ok';
+        is_deeply $dbh->selectrow_arrayref(q[
+            SELECT COUNT(*) FROM `test2`
+            WHERE `created_at` BETWEEN "2010-01-01 00:00:00" AND "2010-12-31 23:59:59"
+        ]), [0];
+        is_deeply $dbh->selectrow_arrayref(q[
+            SELECT COUNT(*) FROM `test2`
+            WHERE `created_at` BETWEEN "2011-01-01 00:00:00" AND "2011-12-31 23:59:59"
+        ]), [2];
+        ok $range_partition->has_partition('p20110101');
         my @partitions = $range_partition->retrieve_partitions;
         is_deeply \@partitions, ['p20100101', 'p20110101', 'p20120101'];
     };
@@ -196,11 +237,20 @@ subtest 'use handle' => sub {
         is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
     };
 
+    subtest 'truncate_partition' => sub {
+        $dbh->do(q[INSERT INTO `test5` (`event_id`) VALUES (1)]);
+        my $handle = $list_partition->prepare_truncate_partitions('p1');
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test5` WHERE `event_id` = 1]), [1];
+        $handle->execute;
+        is_deeply $dbh->selectrow_arrayref(q[SELECT COUNT(*) FROM `test5` WHERE `event_id` = 1]), [0];
+        pass 'truncate_partitions ok';
+    };
+
     subtest 'drop_partition' => sub {
         my $handle = $list_partition->prepare_drop_partitions('p1');
         is_deeply [$list_partition->retrieve_partitions], ['p1', 'p2'];
         $handle->execute;
-        pass 'add_partitions ok';
+        pass 'drop_partitions ok';
         is_deeply [$list_partition->retrieve_partitions], ['p2'];
     };
 };
