@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.05";
+our $VERSION = "1.0000";
 
 use MySQL::Partition::Handle;
 
