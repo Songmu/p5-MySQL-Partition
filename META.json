@@ -67,7 +67,7 @@
          "web" : "https://github.com/Songmu/p5-MySQL-Partition"
       }
    },
-   "version" : "1.0000",
+   "version" : "1.0001",
    "x_authority" : "cpan:SONGMU",
    "x_contributors" : [
       "Ichinose Shogo <shogo82148@gmail.com>"
