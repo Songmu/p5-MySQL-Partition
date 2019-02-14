@@ -96,7 +96,7 @@ sub _build_partition_parts {
 }
 
 sub _build_partition_part {
-    die 'this is abstruct method';
+    die 'this is abstract method';
 }
 
 sub _build_drop_partitions_sql {
